@@ -1,10 +1,11 @@
-
-import MainLayout from './layouts/MainLayout'
+import CarouselComp from "./components/CarouselComp";
+import MainLayout from "./layouts/MainLayout";
 
 export default function Home() {
   return (
+    
     <MainLayout>
-      Nice
+      <CarouselComp />
     </MainLayout>
-  )
+  );
 }
