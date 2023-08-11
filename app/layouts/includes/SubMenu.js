@@ -18,7 +18,7 @@ export default function SubMenu() {
   ]
   return (
     <>
-      {/**Building Menue for orders and Sign out Left Side */}
+      {/**Building SubMenu for links */}
       <div id="SubMenu" className="border-b">
         <div className="flex items-center justify-between w-full max-auto max-w-[1200px]">
          <ul
