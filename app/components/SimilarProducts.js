@@ -5,7 +5,7 @@ import ProductComp from "./Product";
 
 
 export default function SimilarProducts() {
-
+  //mock data
     const products = [
         {
           id: 1,
