@@ -31,9 +31,9 @@ export default function SimilarProducts() {
         <div className="border-b py-1 max-w-[1200px] mx-auto"/>
 
         <div className="max-w-[1200px] mx-auto">
-            
+
             <div className="fomt-bold text-2xl py-2 mt-4">
-                Similar sponsored items
+                Similar sponsored items.
             </div>
 
             {products.length > 0 ? <div className="grid grid-cols-5 gap-4">{products.map(product => (<ProductComp key={products.id} product={product} />))}</div>
