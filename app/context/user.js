@@ -1,4 +1,6 @@
-import { createContext, useState, useEffect, useContect } from "react";
+"use client"
+
+import { createContext, useState, useEffect, useContext } from "react";
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
@@ -43,7 +45,7 @@ const Provider = ({ children }) => {
     useEffect(() => {
         const isUser = async () => {
             const currentSession = await getCurrentSession()
-            if (currentSession) await getCurrentSession()
+            if (currentSession) await getCurrentUser()
         }
         isUser()
     }, [])
