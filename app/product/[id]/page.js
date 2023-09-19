@@ -87,3 +87,6 @@ export default function Product({ params }) {
         </>
     )
 }
+
+
+// This is an amazing key =bia
