@@ -1,10 +1,14 @@
 "use client"
 
+import { useRouter } from "next/router"
 import TextInput from "../components/TextInput"
 import MainLayout from "../layouts/MainLayout"
-import { AiOutlineLoading3Quarters } from "react-icons/ai"
+import { useUser } from "@supabase/auth-helpers-react"
+//  
 
 export default function Address() {
+    const router = useRouter()
+    const { user } = useUser()
     return(
         <>
             <MainLayout>
