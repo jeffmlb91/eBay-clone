@@ -3,12 +3,37 @@
 import { useRouter } from "next/router"
 import TextInput from "../components/TextInput"
 import MainLayout from "../layouts/MainLayout"
-import { useUser } from "@supabase/auth-helpers-react"
+import { useUser } from "../context/user"
+import { useState } from "react"
 //  
 
 export default function Address() {
     const router = useRouter()
     const { user } = useUser()
+
+    const [ addressId, setaddressID ] = useState(null)
+    const [ name, setName ] = useState('')
+    const [ address, setAddress ] = useState('')
+    const [ zipcode, setZipcode ] = useState('')
+    const [ city, setCity ] = useState('')
+    const [ country, setCountry ] = useState('')
+    const [ isUpdatingAddress, setIsUpdatingAddress ] = useState(false)
+    const [ error, setError ] = useState({})
+
+    const showError = (type) => {
+        if (Object.entries(error).length > 0 && error?.type == type) {
+            return error.message
+        }
+        return ''
+    }
+
+    const getAddress = async () => {
+        if (user?.id == null || user?.id == undefined) {
+            useIsLoading(false)
+            return
+        }
+    }
+
     return(
         <>
             <MainLayout>
@@ -19,7 +44,7 @@ export default function Address() {
                         </div>
 
                         <form>
-                            <div className="mb-4">
+                            <div className="mb-4">   
                                 <TextInput 
                                     className="w-full"
                                     string={'Enter an Address'}
