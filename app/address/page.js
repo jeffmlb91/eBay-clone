@@ -1,17 +1,20 @@
 "use client"
 
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import TextInput from "../components/TextInput"
 import MainLayout from "../layouts/MainLayout"
 import { useUser } from "../context/user"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import useIsLoading from "../hooks/useIsLoading"
+import useUserAddress from "../hooks/useUserAddress"
+import { Result } from "postcss"
 //  
 
 export default function Address() {
     const router = useRouter()
     const { user } = useUser()
 
-    const [ addressId, setaddressID ] = useState(null)
+    const [ addressId, setAddressId ] = useState(null)
     const [ name, setName ] = useState('')
     const [ address, setAddress ] = useState('')
     const [ zipcode, setZipcode ] = useState('')
@@ -26,12 +29,34 @@ export default function Address() {
         }
         return ''
     }
-
+ 
     const getAddress = async () => {
         if (user?.id == null || user?.id == undefined) {
             useIsLoading(false)
             return
         }
+
+        const response = await useUserAddress()
+        if (response) {
+            setTheCurrentAddress(response)
+            useIsLoading(false)
+            return
+        }
+        useIsLoading(false)
+    }
+
+    useEffect(() => {
+        useIsLoading(true)
+        getAddress()
+    }, [user])
+
+    const setTheCurrentAddress = (result) => {
+        setAddressId(result.id)
+        setName(result.name)
+        setAddress(result.address)
+        setZipcode(result.zipcode)
+        setCity(result.city)
+        setCountry(result.country)
     }
 
     return(
