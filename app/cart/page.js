@@ -3,19 +3,32 @@
 import SimilarProducts from "../components/SimilarProducts"
 import MainLayout from "../layouts/MainLayout"
 import CartItem from "../components/CartItem"
+import { useRouter } from "next/navigation"
+import { useCart } from "../context/cart"
+import useIsLoading from "../hooks/useIsLoading"
+import { useEffect } from "react"
+import ClientOnly from "../components/ClientOnly"
 
 export default function Cart() {
-    const product = {
-        
-          id: 1,
-          title: "School Books",
-          description:
-            "Enoy this school book to learn about web programing in depth. From Front-End to Back-End. Enjoy learning FullStack developement. A Web Developer is a professional who is responsible for the design and construction of websites. They ensure that sites meet user expectations",
-          url: "https://picsum.photos/id/20",
-          price: 1999,
-    }
-    
 
+    const router  = useRouter()
+    const cart = useCart()
+
+    useEffect(() => {
+        useIsLoading(true)
+        cart.getCart(true)
+        cart.cartTotal()
+        useIsLoading(false)
+    }, [cart])
+
+    const goToCheckout = () => {
+        if(!cart.cartTotal())  {
+            alert("You don't have any items in the cart")
+            return
+        }
+        router.push('/checkout')
+    }
+            
     return(
         <>
             <MainLayout>
@@ -23,32 +36,41 @@ export default function Cart() {
                 <div className="max-w-[1200px] mx-auto mb-8 min-h-[300px]">
                     <div className="text-2xl font-bold my-4">Shopping cart</div>
                     <div className="relative fflex items-center justify-bewteen gap-2">
-                        <div className="w-[65%]">
-                            <CartItem  key={product.id} product={product}/>
-                        </div>
+                        <ClientOnly>
+                            <div className="w-[65%]">
+                                {cart.getCart().map(product => (
+                                    <CartItem  key={product.id} product={product}/>
+                                ))}
+                            </div>
+                        </ClientOnly>
 
                         <div id="GoToCheckout" className="md:w-[33%] absolute top-0 right-0 m-2">
-                            <div className="bg-white p-4 border">
-                                <button className="flex items-center justify-center bg-blue-600 w-full text-white font-semibold p-3 rounded-full mt-4">
-                                    Go to checkout
-                                </button>
-                                <div className="flex items-center justify-between mt-4 text-sm mb-1">
-                                    <div>Items  (3)</div>
-                                    <div>$12.99</div>
-                                </div>
+                           <ClientOnly>
+                                <div className="bg-white p-4 border">
+                                    <button 
+                                        onClick={() => goToCheckout()}
+                                        className="flex items-center justify-center bg-blue-600 w-full text-white font-semibold p-3 rounded-full mt-4"
+                                    >
+                                        Go to checkout
+                                    </button>
+                                    <div className="flex items-center justify-between mt-4 text-sm mb-1">
+                                        <div>Items  ({cart.getCart().length})</div>
+                                        <div>${(cart.cartTotal() / 100).toFixed(2)}</div>
+                                    </div>
 
-                                <div className="flex items-center justify-between mb-4 text-sm">
-                                    <div>Shipping</div>
-                                    <div>Free</div>
-                                </div>
+                                    <div className="flex items-center justify-between mb-4 text-sm">
+                                        <div>Shipping</div>
+                                        <div>Free</div>
+                                    </div>
 
-                                <div className="border border0gray-300"/>
+                                    <div className="border border0gray-300"/>
 
-                                <div className="flex items-center justify-between mt-4 mb-1 text-lg font-semibold">
-                                    <div>Subtotal</div>
-                                    <div>$12.99</div>
+                                    <div className="flex items-center justify-between mt-4 mb-1 text-lg font-semibold">
+                                        <div>Subtotal</div>
+                                        <div>${(cart.cartTotal() / 100).toFixed(2)}</div>
+                                    </div>
                                 </div>
-                            </div>
+                           </ClientOnly>
                         </div>
                     </div>
                 </div>
