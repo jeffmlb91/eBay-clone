@@ -8,6 +8,11 @@ import { useEffect, useState } from "react"
 import useIsLoading from "../hooks/useIsLoading"
 import useUserAddress from "../hooks/useUserAddress"
 import { Result } from "postcss"
+import { toast } from "react-toastify"
+import useCreateAddress from "../hooks/useCreateAddress"
+import ClientOnly from "../components/ClientOnly"
+import { AiOutlineLoading3Quarters } from "react-icons/ai"
+
 //  
 
 export default function Address() {
@@ -59,6 +64,64 @@ export default function Address() {
         setCountry(result.country)
     }
 
+    const validate = () => {
+        setError({})
+        let isError = false   
+        
+        if (!name) {
+            setError({ type: 'name', message: 'A name is required'})
+            isError = true
+        } else if (!address) {
+            setError({ type: 'address', message: 'An Address is required'})
+            isError = true
+        } else if (!zipcode) {
+            setError({ type: 'zipcode', message: 'A zipcode is required'})
+            isError = true
+        } else if (!city) {
+            setError({ type: 'city', message: 'A city is required'})
+            isError = true
+        } else if (!country) {
+            setError({ type: 'country', message: 'A country is required'})
+            isError = true
+        }
+
+        return isError
+    }
+
+    const submit = async (event) => {
+        event.preventDefault();
+        let isError = validate()
+
+        if (isError) {
+            toast.error(error.message, { autoClose: 3000 })
+            return
+        }
+
+        try {
+            setIsUpdatingAddress(true)
+
+            const response = await useCreateAddress({
+                addressId,
+                name,
+                address,
+                zipcode,
+                city,
+                country
+            })
+
+            setTheCurrentAddress(response)
+            setIsUpdatingAddress(false)
+
+            toast.success('Address updated!', { autoClose: 3000 })
+
+            router.push('/checkout')
+        } catch (error) {
+            setIsUpdatingAddress(false)
+            console.log(error)
+            alert(error)
+        }
+    }
+
     return(
         <>
             <MainLayout>
@@ -68,29 +131,88 @@ export default function Address() {
                             Address Details
                         </div>
 
-                        <form>
+                        <form  onSubmit={submit}>
                             <div className="mb-4">   
-                                <TextInput 
-                                    className="w-full"
-                                    string={'Enter an Address'}
-                                    placeholder="Name"
-                                    error="This is an error"
-                                />
+                                <ClientOnly>
+                                    <TextInput 
+                                        className="w-full"
+                                        string={name}
+                                        placeholder="Name"
+                                        onUpdate={setName}
+                                        error={showError('name')}
+                                    />
+                                </ClientOnly>
                             </div>
 
-                            <button 
-                                className="
-                                    mt-6
-                                    w-full
-                                    text-white
-                                    text-lg
-                                    font-semibold
-                                    p-3
-                                    rounded
-                                    bg-blue-600
-                                    "
-                                >
-                                Update Address
+                            <div className="mb-4">   
+                                <ClientOnly>
+                                    <TextInput 
+                                        className="w-full"
+                                        string={address}
+                                        placeholder="Address"
+                                        onUpdate={setAddress}
+                                        error={showError('address')}
+                                    />
+                                </ClientOnly>
+                            </div>
+
+                            <div className="mb-4">   
+                                <ClientOnly>
+                                    <TextInput 
+                                        className="w-full"
+                                        string={zipcode}
+                                        placeholder="zipcode"
+                                        onUpdate={setZipcode}
+                                        error={showError('zipcode')}
+                                    />
+                                </ClientOnly>
+                            </div>
+
+                            <div className="mb-4">   
+                                <ClientOnly>
+                                    <TextInput 
+                                        className="w-full"
+                                        string={city}
+                                        placeholder="City"
+                                        onUpdate={setCity}
+                                        error={showError('city')}
+                                    />
+                                </ClientOnly>
+                            </div>
+
+                            <div className="mb-4">   
+                                <ClientOnly>
+                                    <TextInput 
+                                        className="w-full"
+                                        string={country}
+                                        placeholder="Country"
+                                        onUpdate={setCountry}
+                                        error={showError('country')}
+                                    />
+                                </ClientOnly>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isUpdatingAddress} 
+                                className={`
+                                mt-6
+                                w-full
+                                text-white
+                                text-lg
+                                font-semibold
+                                p-3
+                                rounded
+                                ${isUpdatingAddress ? 'bg-blue-800' : 'bg-blue-600'} 
+                                `}
+                            >
+                                {!isUpdatingAddress 
+                                    ? <div>Update Address</div> 
+                                    : <div className="flex items-center justify-center gap-2">
+                                        <AiOutlineLoading3Quarters className="animate-spin" />
+                                        Please wait...
+                                      </div>
+                                    }
                             </button>
                         </form>
                     </div>
