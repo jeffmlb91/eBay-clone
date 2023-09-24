@@ -1,18 +1,84 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import CheckoutItem from "../components/CheckoutItem"
+import { useCart } from "../context/cart"
+import { useUser } from "@supabase/auth-helpers-react"
 import MainLayout from "../layouts/MainLayout"
+import { useEffect, useRef, useState } from "react"
+import { toast } from "react-toastify"
+import useIsLoading from "../hooks/useIsLoading"
+import useUserAddress from "../hooks/useUserAddress"
+import { loadStripe } from "@stripe/stripe-js"
+
 
 export default function Checkout() {
 
-    const product = {
+   const user = useUser();
+   const cart = useCart();
+   const router = useRouter();
+
+   let stripe = useRef(null)
+   let elements = useRef(null)
+   let card = useRef(null)
+   let clientSecret = useRef(null)
+
+    const [ addressDetails, setAddressDetails ] = useState({})
+    const [ isLoadingAddress, setIsLoadingAddress ] = useState(false)
+
+    useEffect(() => {
+        if (cart?.cartTotal() <= 0) {
+            toast.error("Your cart is empty!", { autoClose: 3000 })
+            return router.push('/')
+        }
+
+        useIsLoading(true)
+
+        const getAddress = async () => {
+            if (user?.id == null || user?.id == undefined) {
+                useIsLoading(false)
+                return
+            }
+            setIsLoadingAddress(true)
+            const response = await useUserAddress()
+            if (response) setAddressDetails(response)
+            setIsLoadingAddress(false)
+        }
+
+        getAddress()
+        setTimeout(() => stripeInit(), 300)
+    }, [user])
+
+    const stripeInit = async () => {
+        stripe.current = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PK_KEY || '')
+
+        const response = await fetch('/api/stripe', {
+            method: 'POST',
+            body: JSON.stringify({ amount: cart.cartTotal() })
+        })
+        const result = await response.json()
         
-        id: 1,
-        title: "School Books",
-        description:
-          "Enoy this school book to learn about web programing in depth. From Front-End to Back-End. Enjoy learning FullStack developement. A Web Developer is a professional who is responsible for the design and construction of websites. They ensure that sites meet user expectations",
-        url: "https://picsum.photos/id/20",
-        price: 1999,
+        clientSecret.current = result.client_secret
+        elements.current = stripe.current.element();
+        var style = {
+            base: { fontSize: "18px"},
+            invalid: {
+                fontFamily: 'Arial, sans-serif',
+                color: "#EE4B2B",
+                iconColor: "#EE4B2B"
+            }
+        }
+
+        card.current = elements.current.create("card", {  hidePostalCode: true, style: style });
+
+        card.current.mount("#card-element");
+        card.current.on("change", function (event) {
+            document.querySelector("button").disabled = event.empty;
+            document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
+        });
+
+
+        useIsLoading(false)
     }
   
     return(
@@ -38,7 +104,9 @@ export default function Checkout() {
                             </div>
 
                             <div id="Items" className="bg-white rounded-lg mt-4">
-                                <CheckoutItem  key={product.id} product={product}/>
+                                {cart.getCart().map(product => (
+                                    <CheckoutItem  key={product.id} product={product}/>
+                                ))}
                             </div>
                         </div>
 
