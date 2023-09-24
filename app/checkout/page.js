@@ -50,33 +50,31 @@ export default function Checkout() {
     }, [user])
 
     const stripeInit = async () => {
-        stripe.current = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PK_KEY || '')
-
+        stripe.current = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PK_KEY || '');
+    
         const response = await fetch('/api/stripe', {
             method: 'POST',
             body: JSON.stringify({ amount: cart.cartTotal() })
         })
         const result = await response.json()
-        
+
         clientSecret.current = result.client_secret
-        elements.current = stripe.current.element();
+        elements.current = stripe.current.elements();
         var style = {
-            base: { fontSize: "18px"},
+            base: { fontSize: "18px" },
             invalid: {
                 fontFamily: 'Arial, sans-serif',
                 color: "#EE4B2B",
                 iconColor: "#EE4B2B"
             }
-        }
-
+        };
         card.current = elements.current.create("card", {  hidePostalCode: true, style: style });
-
+    
         card.current.mount("#card-element");
         card.current.on("change", function (event) {
             document.querySelector("button").disabled = event.empty;
             document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
         });
-
 
         useIsLoading(false)
     }
