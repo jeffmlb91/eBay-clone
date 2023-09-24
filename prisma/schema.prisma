@@ -44,7 +44,7 @@ model OrderItem {
   product    Products  @relation(fields: [product_id], references: [id])
 }
 
-model  Products {
+model Products {
   id          Int       @id @default(autoincrement())
   title       String
   description String

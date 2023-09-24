@@ -1,11 +1,9 @@
 import prisma from "@/app/libs/Prisma";
-import  { NextResponse } from "next/server";
-
+import { NextResponse } from "next/server";
 
 export async function GET(req, context) {
-    
     try {
-        const { name } = context.params
+        const { name } = context.params    
 
         const items = await prisma.products.findMany({
             take: 5,
@@ -13,16 +11,14 @@ export async function GET(req, context) {
                 title: {
                     contains: name,
                     mode: 'insensitive'
-                }
-            }
-        })
-
+                },
+            },
+        });
         await prisma.$disconnect();
         return NextResponse.json(items);
-
     } catch (error) {
         console.log(error);
         await prisma.$disconnect();
-        return  NextResponse('Something went wrong', { status: 400});
+        return new NextResponse('Something went wrong', { status: 400 });
     }
 }

@@ -10,6 +10,7 @@ export async function middleware(req) {
         return NextResponse.redirect(new URL('/', req.url))
     }
 
+    // Must have a session to see these routes
     if (
         !data?.session && (
             req.nextUrl.pathname.startsWith('/checkout') ||
@@ -18,7 +19,7 @@ export async function middleware(req) {
             req.nextUrl.pathname.startsWith('/address')
         )
     ) {
-        return NextResponse.redirect(new URL('auth', req.url))
+        return NextResponse.redirect(new URL('/auth', req.url))
     }
 
     return res
