@@ -127,7 +127,7 @@ export default function Checkout() {
             useIsLoading(false)
         }
     }
-
+        //This shows the error
     const showError = (errorMsgText) => {
         let errorMsg = document.querySelector("#card-error");
         toast.error(errorMsgText, { autoClose: 3000 })
